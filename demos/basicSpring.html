@@ -1,0 +1,49 @@
+<html>
+    <head>
+        <title>Example With One Spring</title>
+        <script type="text/javascript" src="../index.js"></script>
+    </head>
+
+    <body>
+        <div style="background-color: purple; height: 40px; width: 40px; position: absolute; left: 40px; top: 40px;" id="one"></div>
+        <div style="background-color: purple; height: 40px; width: 40px; position: absolute; left: 100px; top: 100px;" id="two"></div>
+
+        <script type="text/javascript">
+        
+            const anchor = document.getElementById('one');
+            const ball = document.getElementById('two');
+
+            const xSpring = new Spring({
+                stiffness: 120,
+                damping: 14,
+                mass: 1,
+                allowOvershooting: true
+            }, {fromValue: 100, toValue: 60});
+            const ySpring = new Spring({
+                stiffness: 120,
+                damping: 14,
+                mass: 1,
+                allowOvershooting: true
+            }, {fromValue: 100, toValue: 60});
+
+            xSpring.onUpdate(newX => {
+                ball.style.left = newX + 'px';
+            });
+
+            ySpring.onUpdate(newY => {
+                ball.style.top = newY + 'px';
+            })
+
+            document.body.addEventListener('mousemove', e => {
+                anchor.style.left = e.pageX;
+                anchor.style.top = e.pageY;
+
+                xSpring.setToValue(e.pageX);
+                ySpring.setToValue(e.pageY);
+
+                e.preventDefault();
+            });
+        
+        </script>
+    </body>
+</html>

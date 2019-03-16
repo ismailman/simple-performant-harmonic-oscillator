@@ -44,7 +44,52 @@
             addSpringToUpdate(this);
         }
 
-        advance(deltaTime) {
+        setFromValue(value) {
+            const velocity = value - this._currentValue;
+            this._currentValue = value;
+            this._reset();
+            this._initialVelocity = velocity;
+
+            addSpringToUpdate(this);
+        }
+
+        setToValue(value) {
+            const velocity = this._velocity;
+            this._toValue = value;
+            this._reset();
+            this._initialVelocity = velocity;
+            
+            addSpringToUpdate(this);
+        }
+
+        end() {
+            this._updateListeners.length = 0;
+            this._atRestListeners.length = 0;
+
+            const onEndListeners = [...this._onEndListeners];
+            for(let ii=0; ii<onEndListeners.length; ii++){
+                onEndListeners[ii]();
+            }
+            this._onEndListeners.length = 0;
+
+            const index = springsToUpdateInNextFrame.indexOf(this);
+            if (index > -1) springsToUpdateInNextFrame.splice(index, 1);
+            if (springsToUpdateInNextFrame.length === 0) clearRequestAnimationFrame(nextRAFCallId);
+        }
+
+        onUpdate(fn) {
+            return addListener(this._updateListeners, fn);
+        }
+
+        onAtRest(fn) {
+            return addListener(this._atRestListeners, fn);
+        }
+
+        onEnd(fn) {
+            return addListener(this._onEndListeners, fn);
+        }
+
+        _advance(deltaTime) {
             if(deltaTime === 0) return false;
             const previousValue = this._currentValue;
             this._simulationTime += deltaTime;
@@ -101,51 +146,6 @@
             return isAtRest;
         }
 
-        end() {
-            this._updateListeners.length = 0;
-            this._atRestListeners.length = 0;
-
-            const onEndListeners = [...this._onEndListeners];
-            for(let ii=0; ii<onEndListeners.length; ii++){
-                onEndListeners[ii]();
-            }
-            this._onEndListeners.length = 0;
-
-            const index = springsToUpdateInNextFrame.indexOf(this);
-            if (index > -1) springsToUpdateInNextFrame.splice(index, 1);
-            if (springsToUpdateInNextFrame.length === 0) clearRequestAnimationFrame(nextRAFCallId);
-        }
-
-        setFromValue(value) {
-            const velocity = value - this._currentValue;
-            this._currentValue = value;
-            this._reset();
-            this._initialVelocity = velocity;
-
-            addSpringToUpdate(this);
-        }
-
-        setToValue(value) {
-            const velocity = this._velocity;
-            this._toValue = value;
-            this._reset();
-            this._initialVelocity = velocity;
-            
-            addSpringToUpdate(this);
-        }
-
-        onUpdate(fn) {
-            return addListener(this._updateListeners, fn);
-        }
-
-        onAtRest(fn) {
-            return addListener(this._atRestListeners, fn);
-        }
-
-        onEnd(fn) {
-            return addListener(this._onEndListeners, fn);
-        }
-
         _reset() {
             this._simulationTime = 0;
             this._fromValue = this._currentValue;
@@ -190,7 +190,7 @@
         const springsToUpdate = springsToUpdateInNextFrame;
         springsToUpdateInNextFrame = [];
         for (let ii = 0; ii < springsToUpdate.length; ii++) {
-            const isAtRest = springsToUpdate[ii].advance(deltaTime)
+            const isAtRest = springsToUpdate[ii]._advance(deltaTime)
             if (!isAtRest) addSpringToUpdate(springsToUpdate[ii]);
         }
     }

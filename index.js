@@ -77,6 +77,29 @@
             if (springsToUpdateInNextFrame.length === 0) clearRequestAnimationFrame(nextRAFCallId);
         }
 
+        getLinkedSpring(offset, springConfig) {
+            const _offset = offset || 0;      
+            const spring = new Spring(springConfig || {
+                mass: this._mass,
+                stiffness: this._stiffness,
+                damping: this._damping,
+                allowOvershootieng: this._allowOvershooting
+            }, {
+                fromValue: this._currentValue + _offset,
+                toValue: this._currentValue + _offset
+            });
+
+            const oldSetTo = spring.setToValue.bind(spring);
+            this.onUpdate(newValue => oldSetTo(newValue + _offset));
+            this.onEnd(() => spring.end());
+
+            spring.setToValue = () => {
+                console.log('tried to set the toValue of a linked spring. Won\'t work')
+            };
+
+            return spring;
+        }
+
         onUpdate(fn) {
             return addListener(this._updateListeners, fn);
         }

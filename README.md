@@ -75,3 +75,10 @@ Register a callback that will be called each time the spring comes to a "resting
 
 Register a callback that will be called when the spring has been ended (i.e. .end() was called).  Returns a method, that when invoked will unregister the callback.
 
+#### `getLinkedSpring(offset: number, springConfig: SpringConfig): Spring`
+
+Returns a new "follow" spring that is "linked" to the spring you called the method on the "anchor" spring. What this means is that the starting point of the follow spring is set to the current value of the anchor spring. Whenever the current position of the anchor spring is updated that will set the toValue of the follow spring. This means that you can't manually set the toValue on the follow spring (the code makes sure this won't happen). 
+
+You can have the follow spring come to a different resting state with the "offset". The toValue of the follow spring is anchor spring's current value + offset. By default offset is 0.
+
+By default the follow spring's configuration (mass, stiffness and dampness) will match that of the anchor spring. But you can override this behavior by passing in a different SpringConfig.

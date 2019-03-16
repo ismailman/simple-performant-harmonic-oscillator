@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>Example With One Spring</title>
+        <title>Example With Multiple Springs</title>
         <script type="text/javascript" src="../index.js"></script>
     </head>
 
@@ -20,16 +20,16 @@
                 document.getElementById('orange'),
                 document.getElementById('yellow'),
                 document.getElementById('green'),
-                document.getElementById('blue'),
-                document.getElementById('indigo'),
+                document.getElementById('blue')
             ];
 
             const violent = document.getElementById('red');
+            const indigo = document.getElementById('indigo');
 
             const springConfig = {
-                stiffness: 130,
-                damping: 14,
-                mass: 1,
+                stiffness: 300,
+                damping: 20,
+                mass: 0.1,
                 allowOvershooting: true
             };
 
@@ -38,30 +38,29 @@
                 toValue: 60
             };
 
-            const springs = boxes.map((el, index) => {
-                const xSpring = new Spring(springConfig, initialPosition);
-                const ySpring = new Spring(springConfig, initialPosition);
+            const indigoXSpring = new Spring(springConfig, initialPosition);
+            const indigoYSpring = new Spring(springConfig, initialPosition);
 
-                xSpring.onUpdate(newX => {
-                    el.style.left = newX + 'px';
-                    if(index > 0) springs[index - 1][0].setToValue(newX);
-                });
+            indigoXSpring.onUpdate(x => indigo.style.left = x + 'px');
+            indigoYSpring.onUpdate(y => indigo.style.top = y + 'px');
 
-                ySpring.onUpdate(newY => {
-                    el.style.top = newY + 'px';
-                    if(index > 0) springs[index - 1][1].setToValue(newY);
-                });
+            let currentXSpring = indigoXSpring;
+            let currentYSpring = indigoYSpring;
 
-                return [xSpring, ySpring];
+            boxes.reverse().forEach((el, index) => {
+                currentXSpring = currentXSpring.getLinkedSpring(5);
+                currentYSpring = currentYSpring.getLinkedSpring(5);
+
+                currentXSpring.onUpdate(x => el.style.left = x + 'px');
+                currentYSpring.onUpdate(y => el.style.top = y + 'px');
             });
-            
 
             document.body.addEventListener('mousemove', e => {
                 violet.style.left = e.pageX;
                 violet.style.top = e.pageY;
 
-                springs[springs.length - 1][0].setToValue(e.pageX);
-                springs[springs.length - 1][1].setToValue(e.pageY);
+                indigoXSpring.setToValue(e.pageX);
+                indigoYSpring.setToValue(e.pageY);
 
                 e.preventDefault();
             });

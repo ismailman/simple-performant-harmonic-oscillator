@@ -8,3 +8,6 @@ A highly optimized physics spring behavior calculator. This code is largely base
 5. all springs are updated in the same RAF callback instead of each spring scheduling its own
 6. different API for when a spring position is updated and complete
 
+One spring demo - https://omar.dev/simple-performant-harmonic-oscillator/demos/basicSpring.html
+
+Multiple springs demo - https://omar.dev/simple-performant-harmonic-oscillator/demos/multipleSprings.html

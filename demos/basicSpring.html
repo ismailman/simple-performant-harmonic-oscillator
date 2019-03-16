@@ -5,38 +5,40 @@
     </head>
 
     <body>
-        <div style="background-color: purple; height: 40px; width: 40px; position: absolute; left: 40px; top: 40px;" id="one"></div>
-        <div style="background-color: purple; height: 40px; width: 40px; position: absolute; left: 100px; top: 100px;" id="two"></div>
+        <div style="background-color: red; height: 40px; width: 40px; position: absolute; left: 40px; top: 40px;" id="red"></div>
+        <div style="background-color: orange; height: 40px; width: 40px; position: absolute; left: 100px; top: 100px;" id="orange"></div>
 
         <script type="text/javascript">
         
-            const anchor = document.getElementById('one');
-            const ball = document.getElementById('two');
+            const red = document.getElementById('red');
+            const orange = document.getElementById('orange');
 
-            const xSpring = new Spring({
+            const springConfig = {
                 stiffness: 120,
                 damping: 14,
                 mass: 1,
                 allowOvershooting: true
-            }, {fromValue: 100, toValue: 60});
-            const ySpring = new Spring({
-                stiffness: 120,
-                damping: 14,
-                mass: 1,
-                allowOvershooting: true
-            }, {fromValue: 100, toValue: 60});
+            };
+
+            const initialPosition = {
+                fromValue: 100, 
+                toValue: 60
+            };
+
+            const xSpring = new Spring(springConfig, initialPosition);
+            const ySpring = new Spring(springConfig, initialPosition);
 
             xSpring.onUpdate(newX => {
-                ball.style.left = newX + 'px';
+                red.style.left = newX + 'px';
             });
 
             ySpring.onUpdate(newY => {
-                ball.style.top = newY + 'px';
-            })
+                red.style.top = newY + 'px';
+            });
 
             document.body.addEventListener('mousemove', e => {
-                anchor.style.left = e.pageX;
-                anchor.style.top = e.pageY;
+                orange.style.left = e.pageX;
+                orange.style.top = e.pageY;
 
                 xSpring.setToValue(e.pageX);
                 ySpring.setToValue(e.pageY);

@@ -1,0 +1,71 @@
+<html>
+    <head>
+        <title>Example With One Spring</title>
+        <script type="text/javascript" src="../index.js"></script>
+    </head>
+
+    <body>
+        <div style="background-color: red; height: 40px; width: 40px; position: absolute; left: 40px; top: 40px;" id="red"></div>
+        <div style="background-color: orange; height: 40px; width: 40px; position: absolute; left: 100px; top: 100px;" id="orange"></div>
+        <div style="background-color: yellow; height: 40px; width: 40px; position: absolute; left: 100px; top: 100px;" id="yellow"></div>
+        <div style="background-color: green; height: 40px; width: 40px; position: absolute; left: 100px; top: 100px;" id="green"></div>
+        <div style="background-color: blue; height: 40px; width: 40px; position: absolute; left: 100px; top: 100px;" id="blue"></div>
+        <div style="background-color: indigo; height: 40px; width: 40px; position: absolute; left: 100px; top: 100px;" id="indigo"></div>
+        <div style="background-color: violet; height: 40px; width: 40px; position: absolute; left: 100px; top: 100px;" id="violet"></div>
+
+        <script type="text/javascript">
+        
+            const boxes = [
+                document.getElementById('red'),
+                document.getElementById('orange'),
+                document.getElementById('yellow'),
+                document.getElementById('green'),
+                document.getElementById('blue'),
+                document.getElementById('indigo'),
+            ];
+
+            const violent = document.getElementById('red');
+
+            const springConfig = {
+                stiffness: 130,
+                damping: 14,
+                mass: 1,
+                allowOvershooting: true
+            };
+
+            const initialPosition = {
+                fromValue: 100, 
+                toValue: 60
+            };
+
+            const springs = boxes.map((el, index) => {
+                const xSpring = new Spring(springConfig, initialPosition);
+                const ySpring = new Spring(springConfig, initialPosition);
+
+                xSpring.onUpdate(newX => {
+                    el.style.left = newX + 'px';
+                    if(index > 0) springs[index - 1][0].setToValue(newX);
+                });
+
+                ySpring.onUpdate(newY => {
+                    el.style.top = newY + 'px';
+                    if(index > 0) springs[index - 1][1].setToValue(newY);
+                });
+
+                return [xSpring, ySpring];
+            });
+            
+
+            document.body.addEventListener('mousemove', e => {
+                violet.style.left = e.pageX;
+                violet.style.top = e.pageY;
+
+                springs[springs.length - 1][0].setToValue(e.pageX);
+                springs[springs.length - 1][1].setToValue(e.pageY);
+
+                e.preventDefault();
+            });
+        
+        </script>
+    </body>
+</html>

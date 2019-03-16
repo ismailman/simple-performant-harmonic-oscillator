@@ -82,7 +82,9 @@
                 mass: this._mass,
                 stiffness: this._stiffness,
                 damping: this._damping,
-                allowOvershootieng: this._allowOvershooting
+                allowOvershootieng: this._allowOvershooting,
+                restVelocityThreshold: this._restVelocityThreshold,
+                restDisplacementThreshold: this._restDisplacementThreshold
             }, {
                 fromValue: this._currentValue + _offset,
                 toValue: this._currentValue + _offset

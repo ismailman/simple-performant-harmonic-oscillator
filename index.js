@@ -1,8 +1,5 @@
 (function () {
 
-    const REST_VELOCITY_THRESHOLD = 0.001;
-    const REST_DISPLACEMENT_THRESHOLD = 0.001;
-
     let springsToUpdateInNextFrame = [];
     let nextRAFCallId;
 
@@ -12,7 +9,9 @@
             this._damping = config.damping == null ? 10 : config.damping;
             this._mass = config.mass == null ? 1 : config.mass;
             this._stiffness = config.stiffness == null ? 100 : config.stiffness;
-            this._allowOvershooting = config.allowOvershooting == null ? false : config.allowOvershooting;
+            this._allowOvershooting = config.allowOvershooting == null ? true : config.allowOvershooting;
+            this._restVelocityThreshold = config.restVelocityThreshold || 0.001;
+            this._restDisplacementThreshold = config.restDisplacementThreshold || 0.001;
 
             if (this._damping < 0) throw new Error('Damping value must be greater than 0');
             if (this._mass < 0) throw new Error('Mass must be greater than 0');
@@ -151,8 +150,8 @@
 
             this._velocity = (this._currentValue - previousValue)/deltaTime;
 
-            const isAtRest = Math.abs(this._currentValue - this._toValue) <= REST_DISPLACEMENT_THRESHOLD ||
-                                Math.abs(this._velocity) <= REST_VELOCITY_THRESHOLD;
+            const isAtRest = Math.abs(this._currentValue - this._toValue) <= this._restDisplacementThreshold ||
+                                Math.abs(this._velocity) <= this._restVelocityThreshold;
 
             if(isAtRest){
                 if(this._hasMoved){

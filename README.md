@@ -36,7 +36,15 @@ The mass of the object attached to the end of the spring. Defaults to `1`.
 
 #### `allowOvershooting: boolean`
 
-True when overshooting is allowed, false when it is not. Defaults to `false`.
+True when overshooting is allowed, false when it is not. Defaults to `true`.
+
+#### `restVelocityThreshold: number`
+
+When spring's velocity is below `restVelocityThreshold`, it is at rest. Defaults to `.001`.
+
+#### `restDisplacementThreshold: number`
+
+When the spring's displacement (current value) is below `restDisplacementThreshold`, it is at rest. Defaults to `.001`.
 
 ## InitialPosition
 

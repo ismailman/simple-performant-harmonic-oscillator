@@ -26,7 +26,6 @@
 
             //timing info
             this._simulationTime = 0;
-            this._lastUpdateTime = Date.now();
 
             this._initialVelocity = 0;
             this._velocity = 0;
@@ -35,26 +34,25 @@
 
             this._updateListeners = [];
             this._atRestListeners = [];
+            this._onEndListeners = [];
 
             //derived numbers that are used across simulation ticks
             this._zeta = Math.min(this._damping / (2 * Math.sqrt(this._stiffness * this._mass)), 1); // damping ratio (dimensionless)
             this._omega0 = Math.sqrt(this._stiffness / this._mass) / 1000; // undamped angular frequency of the oscillator (rad/ms)
             this._omega1 = this._omega0 * Math.sqrt(1.0 - this._zeta * this._zeta); // exponential decay
-            this._omega2 = this._omega0 * Math.sqrt(this._zeta * this._zeta - 1.0); // frequency of damped oscillation
 
             addSpringToUpdate(this);
         }
 
-        advance(deltaTime, absoluteTime) {
+        advance(deltaTime) {
             if(deltaTime === 0) return false;
             const previousValue = this._currentValue;
             this._simulationTime += deltaTime;
-            this._lastUpdateTime = absoluteTime;
 
             const negativeInitialVelocity = -this._initialVelocity;
 
             if (this._zeta < 1) {
-                // Under damped
+                // Under damped, will overshoot
                 this._currentValue =
                     this._toValue -
                     Math.exp(-this._zeta * this._omega0 * this._simulationTime) *
@@ -62,13 +60,14 @@
                         this._initialDisplacement * Math.cos(this._omega1 * this._simulationTime));
             }
             else if (this._zeta === 1) {
-                // Critically damped
+                // Critically damped, will asymptotically arrive at toValue
                 this._currentValue = 
                     this._toValue - 
                     Math.exp(-this._omega0 * this._simulationTime) * 
                     (this._initialDisplacement + (negativeInitialVelocity + this._omega0 * this._initialDisplacement) * this._simulationTime);
             }
 
+            // if we don't allow overshooting then clamp to toValue
             if(
                 !this._allowOvershooting && (
                     (this._fromValue > this._toValue && this._currentValue < this._toValue) ||
@@ -82,7 +81,7 @@
                 this._updateListeners[ii](this._currentValue);
             }
 
-            this._velocity = this._currentValue - previousValue;
+            this._velocity = (this._currentValue - previousValue)/deltaTime;
 
             const isAtRest = Math.abs(this._currentValue - this._toValue) <= REST_DISPLACEMENT_THRESHOLD ||
                                 Math.abs(this._velocity) <= REST_VELOCITY_THRESHOLD;
@@ -102,14 +101,15 @@
             return isAtRest;
         }
 
-        forceAdvance() {
-            const now = Date.now();
-            this.advance(now - this._lastUpdateTime, now);
-        }
-
         end() {
             this._updateListeners.length = 0;
             this._atRestListeners.length = 0;
+
+            const onEndListeners = [...this._onEndListeners];
+            for(let ii=0; ii<onEndListeners.length; ii++){
+                onEndListeners[ii]();
+            }
+            this._onEndListeners.length = 0;
 
             const index = springsToUpdateInNextFrame.indexOf(this);
             if (index > -1) springsToUpdateInNextFrame.splice(index, 1);
@@ -117,39 +117,33 @@
         }
 
         setFromValue(value) {
-            this.forceAdvance();            
-
+            const velocity = value - this._currentValue;
             this._currentValue = value;
             this._reset();
+            this._initialVelocity = velocity;
 
             addSpringToUpdate(this);
         }
 
         setToValue(value) {
-            this.forceAdvance();
-
+            const velocity = this._velocity;
             this._toValue = value;
             this._reset();
+            this._initialVelocity = velocity;
             
             addSpringToUpdate(this);
         }
 
         onUpdate(fn) {
-            this._updateListeners.push(fn);
-
-            return function () {
-                const index = this._updateListeners.indexOf(fn);
-                if (index > -1) this._updateListeners.splice(index, 1);
-            }
+            return addListener(this._updateListeners, fn);
         }
 
         onAtRest(fn) {
-            this._atRestListeners.push(fn);
+            return addListener(this._atRestListeners, fn);
+        }
 
-            return function () {
-                const index = this._atRestListeners.indexOf(fn);
-                if (index > -1) this._atRestListeners.splice(index, 1);
-            }
+        onEnd(fn) {
+            return addListener(this._onEndListeners, fn);
         }
 
         _reset() {
@@ -162,21 +156,41 @@
         }
     }
 
+    function addListener(listenerArray, fn){
+        // we put the adding of the listener in a promise so that the addition
+        // happens at the end of the event loop. This is to guard against the case where
+        // an update or atRest listener get added as a result of another update or atRest listener
+        // this makes sure the new listener won't get executed until the next animation cycle
+        const promise = Promise.resolve();
+        promise.then(() => {
+            listenerArray.push(fn);
+        });
+        
+        return function(){
+            promise.then(() => {
+                const index = listenerArray.indexOf(fn);
+                if(index > -1) listenerArray.splice(index, 1);
+            });
+        };
+    }
+
+    let timeOfLastUpdate;
     function addSpringToUpdate(_spring) {
         if (springsToUpdateInNextFrame.indexOf(_spring) === -1) {
             springsToUpdateInNextFrame.push(_spring);
             if (springsToUpdateInNextFrame.length === 1) {
-                const timeOfLastUpdate = Date.now();
-                nextRAFCallId = requestAnimationFrame(() => updateSprings(Date.now() - timeOfLastUpdate, timeOfLastUpdate));
+                timeOfLastUpdate = Date.now();
+                nextRAFCallId = requestAnimationFrame(updateSprings);
             }
         }
     }
 
-    function updateSprings(deltaTime, now) {
+    function updateSprings() {
+        const deltaTime = Date.now() - timeOfLastUpdate;
         const springsToUpdate = springsToUpdateInNextFrame;
         springsToUpdateInNextFrame = [];
         for (let ii = 0; ii < springsToUpdate.length; ii++) {
-            const isAtRest = springsToUpdate[ii].advance(deltaTime, now)
+            const isAtRest = springsToUpdate[ii].advance(deltaTime)
             if (!isAtRest) addSpringToUpdate(springsToUpdate[ii]);
         }
     }

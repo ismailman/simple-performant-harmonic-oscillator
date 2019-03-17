@@ -15,7 +15,7 @@
 
         <script type="text/javascript">
             (async function() {
-                const Spring = await import('../spho.mjs');
+                const {Spring} = await import('../spho.mjs');
 
                 const boxes = [
                     document.getElementById('blue'),
@@ -42,6 +42,8 @@
 
                 const indigoXSpring = new Spring(springConfig, initialPosition);
                 const indigoYSpring = new Spring(springConfig, initialPosition);
+                indigoXSpring.onUpdate(x => indigo.style.left = x + 'px');
+                indigoYSpring.onUpdate(y => indigo.style.top = y + 'px');
 
                 let currentXSpring = indigoXSpring;
                 let currentYSpring = indigoYSpring;

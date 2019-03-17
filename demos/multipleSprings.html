@@ -1,7 +1,7 @@
 <html>
     <head>
         <title>Example With Multiple Springs</title>
-        <script type="text/javascript" src="../index.js"></script>
+        <script type="module" src="../spho.mjs"></script>
     </head>
 
     <body>
@@ -14,57 +14,57 @@
         <div style="background-color: violet; height: 40px; width: 40px; position: absolute; left: 100px; top: 100px;" id="violet"></div>
 
         <script type="text/javascript">
-        
-            const boxes = [
-                document.getElementById('red'),
-                document.getElementById('orange'),
-                document.getElementById('yellow'),
-                document.getElementById('green'),
-                document.getElementById('blue')
-            ];
+            (async function() {
+                const Spring = await import('../spho.mjs');
 
-            const violent = document.getElementById('red');
-            const indigo = document.getElementById('indigo');
+                const boxes = [
+                    document.getElementById('blue'),
+                    document.getElementById('green'),
+                    document.getElementById('yellow'),
+                    document.getElementById('orange'),
+                    document.getElementById('red')
+                ];
 
-            const springConfig = {
-                stiffness: 300,
-                damping: 20,
-                mass: 0.1,
-                allowOvershooting: true
-            };
+                const violent = document.getElementById('red');
+                const indigo = document.getElementById('indigo');
 
-            const initialPosition = {
-                fromValue: 100, 
-                toValue: 60
-            };
+                const springConfig = {
+                    stiffness: 300,
+                    damping: 20,
+                    mass: 0.1,
+                    allowOvershooting: true
+                };
 
-            const indigoXSpring = new Spring(springConfig, initialPosition);
-            const indigoYSpring = new Spring(springConfig, initialPosition);
+                const initialPosition = {
+                    fromValue: 100, 
+                    toValue: 60
+                };
 
-            indigoXSpring.onUpdate(x => indigo.style.left = x + 'px');
-            indigoYSpring.onUpdate(y => indigo.style.top = y + 'px');
+                const indigoXSpring = new Spring(springConfig, initialPosition);
+                const indigoYSpring = new Spring(springConfig, initialPosition);
 
-            let currentXSpring = indigoXSpring;
-            let currentYSpring = indigoYSpring;
+                let currentXSpring = indigoXSpring;
+                let currentYSpring = indigoYSpring;
 
-            boxes.reverse().forEach((el, index) => {
-                currentXSpring = currentXSpring.getLinkedSpring(5);
-                currentYSpring = currentYSpring.getLinkedSpring(5);
+                boxes.forEach((el, index) => {
+                    currentXSpring = currentXSpring.getLinkedSpring(5);
+                    currentYSpring = currentYSpring.getLinkedSpring(5);
 
-                currentXSpring.onUpdate(x => el.style.left = x + 'px');
-                currentYSpring.onUpdate(y => el.style.top = y + 'px');
-            });
+                    currentXSpring.onUpdate(x => el.style.left = x + 'px');
+                    currentYSpring.onUpdate(y => el.style.top = y + 'px');
+                });
 
-            document.body.addEventListener('mousemove', e => {
-                violet.style.left = e.pageX;
-                violet.style.top = e.pageY;
 
-                indigoXSpring.setToValue(e.pageX);
-                indigoYSpring.setToValue(e.pageY);
+                document.body.addEventListener('mousemove', e => {
+                    violet.style.left = e.pageX;
+                    violet.style.top = e.pageY;
 
-                e.preventDefault();
-            });
-        
+                    indigoXSpring.setToValue(e.pageX);
+                    indigoYSpring.setToValue(e.pageY);
+
+                    e.preventDefault();
+                });
+            }());
         </script>
     </body>
 </html>

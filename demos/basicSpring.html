@@ -8,46 +8,45 @@
         <div style="background-color: red; height: 40px; width: 40px; position: absolute; left: 40px; top: 40px;" id="red"></div>
         <div style="background-color: orange; height: 40px; width: 40px; position: absolute; left: 100px; top: 100px;" id="orange"></div>
 
-        <script type="text/javascript">
-            (async function(){
-                const {Spring} = await import('../spho.mjs');
+        <script type="module">
+            
+            const Spring = await import('../spho.mjs');
 
-                const red = document.getElementById('red');
-                const orange = document.getElementById('orange');
+            const red = document.getElementById('red');
+            const orange = document.getElementById('orange');
 
-                const springConfig = {
-                    stiffness: 120,
-                    damping: 14,
-                    mass: 1,
-                    allowOvershooting: true
-                };
+            const springConfig = {
+                stiffness: 120,
+                damping: 14,
+                mass: 1,
+                allowOvershooting: true
+            };
 
-                const initialPosition = {
-                    fromValue: 100, 
-                    toValue: 60
-                };
+            const initialPosition = {
+                fromValue: 100, 
+                toValue: 60
+            };
 
-                const xSpring = new Spring(springConfig, initialPosition);
-                const ySpring = new Spring(springConfig, initialPosition);
+            const xSpring = new Spring(springConfig, initialPosition);
+            const ySpring = new Spring(springConfig, initialPosition);
 
-                xSpring.onUpdate(newX => {
-                    red.style.left = newX + 'px';
-                });
+            xSpring.onUpdate(newX => {
+                red.style.left = newX + 'px';
+            });
 
-                ySpring.onUpdate(newY => {
-                    red.style.top = newY + 'px';
-                });
+            ySpring.onUpdate(newY => {
+                red.style.top = newY + 'px';
+            });
 
-                document.body.addEventListener('mousemove', e => {
-                    orange.style.left = e.pageX;
-                    orange.style.top = e.pageY;
+            document.body.addEventListener('mousemove', e => {
+                orange.style.left = e.pageX;
+                orange.style.top = e.pageY;
 
-                    xSpring.setToValue(e.pageX);
-                    ySpring.setToValue(e.pageY);
+                xSpring.setToValue(e.pageX);
+                ySpring.setToValue(e.pageY);
 
-                    e.preventDefault();
-                });
-            })();
+                e.preventDefault();
+            });
         
         </script>
     </body>

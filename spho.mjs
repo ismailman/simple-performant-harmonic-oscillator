@@ -1,7 +1,7 @@
 let springsToUpdateInNextFrame = [];
 let nextRAFCallId;
 
-export class Spring {
+export default class Spring {
     constructor(config, startingPositions = { fromValue: 0, toValue: 0 }) {
         // config params
         this._damping = config.damping == null ? 10 : config.damping;

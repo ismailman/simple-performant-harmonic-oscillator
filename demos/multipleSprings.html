@@ -13,60 +13,60 @@
         <div style="background-color: indigo; height: 40px; width: 40px; position: absolute; left: 100px; top: 100px;" id="indigo"></div>
         <div style="background-color: violet; height: 40px; width: 40px; position: absolute; left: 100px; top: 100px;" id="violet"></div>
 
-        <script type="text/javascript">
-            (async function() {
-                const {Spring} = await import('../spho.mjs');
+        <script type="module">
+            
+            import Spring from '../spho.mjs';
 
-                const boxes = [
-                    document.getElementById('blue'),
-                    document.getElementById('green'),
-                    document.getElementById('yellow'),
-                    document.getElementById('orange'),
-                    document.getElementById('red')
-                ];
+            const boxes = [
+                document.getElementById('blue'),
+                document.getElementById('green'),
+                document.getElementById('yellow'),
+                document.getElementById('orange'),
+                document.getElementById('red')
+            ];
 
-                const violent = document.getElementById('red');
-                const indigo = document.getElementById('indigo');
+            const violent = document.getElementById('red');
+            const indigo = document.getElementById('indigo');
 
-                const springConfig = {
-                    stiffness: 300,
-                    damping: 20,
-                    mass: 0.1,
-                    allowOvershooting: true
-                };
+            const springConfig = {
+                stiffness: 300,
+                damping: 20,
+                mass: 0.1,
+                allowOvershooting: true
+            };
 
-                const initialPosition = {
-                    fromValue: 100, 
-                    toValue: 60
-                };
+            const initialPosition = {
+                fromValue: 100, 
+                toValue: 60
+            };
 
-                const indigoXSpring = new Spring(springConfig, initialPosition);
-                const indigoYSpring = new Spring(springConfig, initialPosition);
-                indigoXSpring.onUpdate(x => indigo.style.left = x + 'px');
-                indigoYSpring.onUpdate(y => indigo.style.top = y + 'px');
+            const indigoXSpring = new Spring(springConfig, initialPosition);
+            const indigoYSpring = new Spring(springConfig, initialPosition);
+            indigoXSpring.onUpdate(x => indigo.style.left = x + 'px');
+            indigoYSpring.onUpdate(y => indigo.style.top = y + 'px');
 
-                let currentXSpring = indigoXSpring;
-                let currentYSpring = indigoYSpring;
+            let currentXSpring = indigoXSpring;
+            let currentYSpring = indigoYSpring;
 
-                boxes.forEach((el, index) => {
-                    currentXSpring = currentXSpring.getLinkedSpring(5);
-                    currentYSpring = currentYSpring.getLinkedSpring(5);
+            boxes.forEach((el, index) => {
+                currentXSpring = currentXSpring.getLinkedSpring(5);
+                currentYSpring = currentYSpring.getLinkedSpring(5);
 
-                    currentXSpring.onUpdate(x => el.style.left = x + 'px');
-                    currentYSpring.onUpdate(y => el.style.top = y + 'px');
-                });
+                currentXSpring.onUpdate(x => el.style.left = x + 'px');
+                currentYSpring.onUpdate(y => el.style.top = y + 'px');
+            });
 
 
-                document.body.addEventListener('mousemove', e => {
-                    violet.style.left = e.pageX;
-                    violet.style.top = e.pageY;
+            document.body.addEventListener('mousemove', e => {
+                violet.style.left = e.pageX;
+                violet.style.top = e.pageY;
 
-                    indigoXSpring.setToValue(e.pageX);
-                    indigoYSpring.setToValue(e.pageY);
+                indigoXSpring.setToValue(e.pageX);
+                indigoYSpring.setToValue(e.pageY);
 
-                    e.preventDefault();
-                });
-            }());
+                e.preventDefault();
+            });
+            
         </script>
     </body>
 </html>

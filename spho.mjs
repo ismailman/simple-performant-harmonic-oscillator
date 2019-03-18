@@ -27,8 +27,6 @@ export default class Spring {
         this._initialVelocity = 0;
         this._velocity = 0;
 
-        this._hasMoved = false;
-
         this._updateListeners = [];
         this._atRestListeners = [];
         this._onEndListeners = [];
@@ -113,6 +111,7 @@ export default class Spring {
 
     _advance(deltaTime) {
         if(deltaTime === 0) return false;
+
         const previousValue = this._currentValue;
         this._simulationTime += deltaTime;
 
@@ -150,19 +149,14 @@ export default class Spring {
 
         this._velocity = (this._currentValue - previousValue)/deltaTime;
 
-        const isAtRest = Math.abs(this._currentValue - this._toValue) <= this._restDisplacementThreshold ||
+        const isAtRest = Math.abs(this._currentValue - this._toValue) <= this._restDisplacementThreshold &&
                             Math.abs(this._velocity) <= this._restVelocityThreshold;
 
         if(isAtRest){
-            if(this._hasMoved){
-                for(let ii=0; ii<this._atRestListeners.length; ii++){
-                    this._atRestListeners[ii](currentValue);
-                }
-                this._reset();
+            for(let ii=0; ii<this._atRestListeners.length; ii++){
+                this._atRestListeners[ii](currentValue);
             }
-        }
-        else{
-            this._hasMoved = true;
+            this._reset();
         }
         
         return isAtRest;
@@ -174,7 +168,6 @@ export default class Spring {
         this._initialDisplacement = this._toValue - this._fromValue;
         this._velocity = 0;
         this._initialVelocity = 0;
-        this._hasMoved = false;
     }
 }
 

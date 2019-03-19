@@ -6,5 +6,6 @@
   "repository": "https://github.com/ismailman/simple-performant-harmonic-oscillator.git",
   "author": "<code@omar.dev>",
   "license": "MIT",
-  "keywords": ["animation", "spring"]
+  "keywords": ["animation", "spring"],
+  "types": "index.d.ts"
 }

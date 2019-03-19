@@ -14,7 +14,7 @@ Multiple springs demo - https://omar.dev/simple-performant-harmonic-oscillator/d
 
 # API
 
-#### `new Spring(config: SpringConfig, initialPosition: InitialPosition)`
+#### `new Spring(config?: SpringConfig, initialPosition?: InitialPosition)`
 
 Initialize a new spring with a given spring configuration. Whenever the from and to values are different the spring will be in motion. This means if the initial values
 are different the spring will be updating right away. And if there's an update

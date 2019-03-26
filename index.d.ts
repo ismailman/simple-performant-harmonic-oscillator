@@ -1,12 +1,8 @@
 declare module "simple-performant-harmonic-oscillator";
 
 export interface SpringConfig {
-    stiffness?: number;
-    damping?: number;
-    mass?: number;
-    allowOvershooting?: boolean;
-    restVelocityThreshold?: number;
-    restDisplacementThreshold?: number;
+    bounciness?: number;
+    speed?: number;
 }
 
 export interface InitialPositionConfig {
@@ -20,7 +16,6 @@ export type UnsubscribeFunction = () => void;
 export default class Spring {
     constructor(springConfig?: SpringConfig, initialPosition?: InitialPositionConfig);
 
-    setFromValue(fromValue: number): void;
     setToValue(toValue: number): void;
     end(): void;
 

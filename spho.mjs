@@ -1,44 +1,17 @@
 let springsToUpdateInNextFrame = [];
 let nextRAFCallId;
 
-const REST_THRESHOLD = 0.001;
-
-function rk4([displacement, vel], func) {
-    const result_1 = func([displacement, vel]);
-    const [vel_1, accel_1] = [result_1[0], result_1[1]] ;
-
-    const result_2 = func([displacement + 0.5*vel_1, vel + 0.5*accel_1]);
-    const [vel_2, accel_2] = [result_2[0], result_2[1]];
-
-    const result_3 = func([displacement + 0.5*vel_2, vel + 0.5*accel_2]);
-    const [vel_3, accel_3] = [result_3[0], result_3[1]];
-
-    const result_4 = func([displacement+vel_3, vel + accel_3]);
-    const [vel_4, accel_4] = [result_4[0], result_4[1]];
-
-    return [
-        displacement + (vel_1 + 2*(vel_2 + vel_3) + vel_4)/6,
-        vel + (accel_1 + 2*(accel_2 + accel_3) + accel_4)/6
-    ];
-}
-
-function getSpringEquation(stiffness, damping){
-    if (stiffness < 0) throw new Error('Stiffness must be greater than 0');
-    if (damping < 0) throw new Error('Damping value must be greater than 0');
-    
-    return function([displacement, vel]) {
-        return [vel, -stiffness*displacement - damping*vel];
-    };
-}
+const REST_THRESHOLD = 0.01;
 
 export default class Spring {
     constructor(config, startingPositions = { fromValue: 0, toValue: 0 }) {
-        this._damping = config.damping;
-        this._stiffness = config.stiffness;
+        this._tightness = 1/(config.bounciness || 1);
+        this._slowness = 100/(config.speed || 1);
+        
         this._springEquation 
             = getSpringEquation (
-                config.stiffness == null ? 2 : config.stiffness, 
-                config.damping == null ? 1 : config.damping
+                this._tightness,
+                this._slowness
             );
         
         // state info
@@ -54,7 +27,7 @@ export default class Spring {
     }
 
     setCurrentValue(value) {
-        this._currentValue = value;        
+        this._currentValue = value;
         addSpringToUpdate(this);
     }
 
@@ -81,8 +54,8 @@ export default class Spring {
     getLinkedSpring(offset, springConfig) {
         const _offset = offset || 0;      
         const spring = new Spring(springConfig || {
-            stiffness: this._stiffness,
-            damping: this._damping
+            bounciness: 1/this._tightness,
+            speed: 100/this._slowness
         }, {
             fromValue: this._currentValue + _offset,
             toValue: this._currentValue + _offset
@@ -113,9 +86,10 @@ export default class Spring {
 
     // use RK4 (https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods#The_Runge%E2%80%93Kutta_method)
     // with code ported from http://doswa.com/2009/01/02/fourth-order-runge-kutta-numerical-integration.html
-    _advance() {
+    _advance(deltaTime) {
         const [displacement, velocity] = 
                 rk4 (
+                    deltaTime,
                     [
                         this._toValue - this._currentValue,
                         this._velocity
@@ -173,14 +147,40 @@ function addSpringToUpdate(_spring) {
 
 function updateSprings() {
     const deltaTime = (Date.now() - timeOfLastUpdate);
-    if(deltaTime < 16) {
+    if(deltaTime === 0) {
         nextRAFCallId = requestAnimationFrame(updateSprings);
         return;
     };
     const springsToUpdate = springsToUpdateInNextFrame;
     springsToUpdateInNextFrame = [];
     for (let ii = 0; ii < springsToUpdate.length; ii++) {
-        const isAtRest = springsToUpdate[ii]._advance()
+        const isAtRest = springsToUpdate[ii]._advance(deltaTime)
         if (!isAtRest) addSpringToUpdate(springsToUpdate[ii]);
     }
+}
+
+function rk4(deltaTime, [displacement, vel], func) {
+    const result_1 = func(deltaTime, [displacement, vel]);
+    const [vel_1, accel_1] = [result_1[0], result_1[1]] ;
+
+    const result_2 = func(deltaTime, [displacement + 0.5*vel_1, vel + 0.5*accel_1]);
+    const [vel_2, accel_2] = [result_2[0], result_2[1]];
+
+    const result_3 = func(deltaTime, [displacement + 0.5*vel_2, vel + 0.5*accel_2]);
+    const [vel_3, accel_3] = [result_3[0], result_3[1]];
+
+    const result_4 = func(deltaTime, [displacement+vel_3, vel + accel_3]);
+    const [vel_4, accel_4] = [result_4[0], result_4[1]];
+
+    return [
+        displacement + (vel_1 + 2*(vel_2 + vel_3) + vel_4)/6,
+        vel + (accel_1 + 2*(accel_2 + accel_3) + accel_4)/6
+    ];
+}
+
+function getSpringEquation(tightness, slowness){    
+    return function(deltaTime, [displacement, vel]) {
+        const trueDelta = deltaTime/slowness;
+        return [trueDelta*vel, trueDelta*(-displacement - tightness*vel)];
+    };
 }

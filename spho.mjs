@@ -1,59 +1,65 @@
 let springsToUpdateInNextFrame = [];
 let nextRAFCallId;
 
+const REST_THRESHOLD = 0.001;
+
+function rk4([displacement, vel], func) {
+    const result_1 = func([displacement, vel]);
+    const [vel_1, accel_1] = [result_1[0], result_1[1]] ;
+
+    const result_2 = func([displacement + 0.5*vel_1, vel + 0.5*accel_1]);
+    const [vel_2, accel_2] = [result_2[0], result_2[1]];
+
+    const result_3 = func([displacement + 0.5*vel_2, vel + 0.5*accel_2]);
+    const [vel_3, accel_3] = [result_3[0], result_3[1]];
+
+    const result_4 = func([displacement+vel_3, vel + accel_3]);
+    const [vel_4, accel_4] = [result_4[0], result_4[1]];
+
+    return [
+        displacement + (vel_1 + 2*(vel_2 + vel_3) + vel_4)/6,
+        vel + (accel_1 + 2*(accel_2 + accel_3) + accel_4)/6
+    ];
+}
+
+function getSpringEquation(stiffness, damping){
+    if (stiffness < 0) throw new Error('Stiffness must be greater than 0');
+    if (damping < 0) throw new Error('Damping value must be greater than 0');
+    
+    return function([displacement, vel]) {
+        return [vel, -stiffness*displacement - damping*vel];
+    };
+}
+
 export default class Spring {
     constructor(config, startingPositions = { fromValue: 0, toValue: 0 }) {
-        // config params
-        this._damping = config.damping == null ? 10 : config.damping;
-        this._mass = config.mass == null ? 1 : config.mass;
-        this._stiffness = config.stiffness == null ? 100 : config.stiffness;
-        this._allowOvershooting = config.allowOvershooting == null ? true : config.allowOvershooting;
-        this._restVelocityThreshold = config.restVelocityThreshold || 0.001;
-        this._restDisplacementThreshold = config.restDisplacementThreshold || 0.001;
-
-        if (this._damping < 0) throw new Error('Damping value must be greater than 0');
-        if (this._mass < 0) throw new Error('Mass must be greater than 0');
-        if (this._stiffness < 0) throw new Error('Stiffness must be greater than 0');
+        this._damping = config.damping;
+        this._stiffness = config.stiffness;
+        this._springEquation 
+            = getSpringEquation (
+                config.stiffness == null ? 2 : config.stiffness, 
+                config.damping == null ? 1 : config.damping
+            );
         
-        //starting positions
-        this._fromValue = startingPositions.fromValue == null ?  0 : startingPositions.fromValue;
+        // state info
+        this._currentValue = startingPositions.fromValue == null ?  0 : startingPositions.fromValue;
         this._toValue = startingPositions.toValue == null ? 1 : startingPositions.toValue;
-        this._initialDisplacement = this._toValue - this._fromValue; // initial displacement of the spring at t = 0
-        this._currentValue = this._fromValue;
-
-        //timing info
-        this._simulationTime = 0;
-
-        this._initialVelocity = 0;
         this._velocity = 0;
 
         this._updateListeners = [];
         this._atRestListeners = [];
         this._onEndListeners = [];
 
-        //derived numbers that are used across simulation ticks
-        this._zeta = Math.min(this._damping / (2 * Math.sqrt(this._stiffness * this._mass)), 1); // damping ratio (dimensionless)
-        this._omega0 = Math.sqrt(this._stiffness / this._mass) / 1000; // undamped angular frequency of the oscillator (rad/ms)
-        this._omega1 = this._omega0 * Math.sqrt(1.0 - this._zeta * this._zeta); // exponential decay
-
         addSpringToUpdate(this);
     }
 
-    setFromValue(value) {
-        const velocity = value - this._currentValue;
-        this._currentValue = value;
-        this._reset();
-        this._initialVelocity = velocity;
-
+    setCurrentValue(value) {
+        this._currentValue = value;        
         addSpringToUpdate(this);
     }
 
     setToValue(value) {
-        const velocity = this._velocity;
         this._toValue = value;
-        this._reset();
-        this._initialVelocity = velocity;
-        
         addSpringToUpdate(this);
     }
 
@@ -75,12 +81,8 @@ export default class Spring {
     getLinkedSpring(offset, springConfig) {
         const _offset = offset || 0;      
         const spring = new Spring(springConfig || {
-            mass: this._mass,
             stiffness: this._stiffness,
-            damping: this._damping,
-            allowOvershootieng: this._allowOvershooting,
-            restVelocityThreshold: this._restVelocityThreshold,
-            restDisplacementThreshold: this._restDisplacementThreshold
+            damping: this._damping
         }, {
             fromValue: this._currentValue + _offset,
             toValue: this._currentValue + _offset
@@ -109,65 +111,34 @@ export default class Spring {
         return addListener(this._onEndListeners, fn);
     }
 
-    _advance(deltaTime) {
-        if(deltaTime === 0) return false;
-
-        const previousValue = this._currentValue;
-        this._simulationTime += deltaTime;
-
-        const negativeInitialVelocity = -this._initialVelocity;
-
-        if (this._zeta < 1) {
-            // Under damped, will overshoot
-            this._currentValue =
-                this._toValue -
-                Math.exp(-this._zeta * this._omega0 * this._simulationTime) *
-                ((negativeInitialVelocity + this._zeta * this._omega0 * this._initialDisplacement) / this._omega1 * Math.sin(this._omega1 * this._simulationTime) +
-                    this._initialDisplacement * Math.cos(this._omega1 * this._simulationTime));
-        }
-        else if (this._zeta === 1) {
-            // Critically damped, will asymptotically arrive at toValue
-            this._currentValue = 
-                this._toValue - 
-                Math.exp(-this._omega0 * this._simulationTime) * 
-                (this._initialDisplacement + (negativeInitialVelocity + this._omega0 * this._initialDisplacement) * this._simulationTime);
-        }
-
-        // if we don't allow overshooting then clamp to toValue
-        if(
-            !this._allowOvershooting && (
-                (this._fromValue > this._toValue && this._currentValue < this._toValue) ||
-                (this._fromValue < this._toValue && this._currentValue > this._toValue)
-            )
-            ) {
-            this._currentValue = this._toValue;
-        }
+    // use RK4 (https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods#The_Runge%E2%80%93Kutta_method)
+    // with code ported from http://doswa.com/2009/01/02/fourth-order-runge-kutta-numerical-integration.html
+    _advance() {
+        const [displacement, velocity] = 
+                rk4 (
+                    [
+                        this._toValue - this._currentValue,
+                        this._velocity
+                    ],
+                    this._springEquation
+                );
+        this._currentValue = this._toValue - displacement;
+        this._velocity = velocity;
 
         for(let ii=0; ii<this._updateListeners.length; ii++){
             this._updateListeners[ii](this._currentValue);
         }
 
-        this._velocity = (this._currentValue - previousValue)/deltaTime;
-
-        const isAtRest = Math.abs(this._currentValue - this._toValue) <= this._restDisplacementThreshold &&
-                            Math.abs(this._velocity) <= this._restVelocityThreshold;
+        const isAtRest = Math.abs(this._currentValue - this._toValue) <= REST_THRESHOLD &&
+                            Math.abs(this._velocity) <= REST_THRESHOLD;
 
         if(isAtRest){
             for(let ii=0; ii<this._atRestListeners.length; ii++){
                 this._atRestListeners[ii](currentValue);
             }
-            this._reset();
         }
         
         return isAtRest;
-    }
-
-    _reset() {
-        this._simulationTime = 0;
-        this._fromValue = this._currentValue;
-        this._initialDisplacement = this._toValue - this._fromValue;
-        this._velocity = 0;
-        this._initialVelocity = 0;
     }
 }
 
@@ -201,11 +172,15 @@ function addSpringToUpdate(_spring) {
 }
 
 function updateSprings() {
-    const deltaTime = Date.now() - timeOfLastUpdate;
+    const deltaTime = (Date.now() - timeOfLastUpdate);
+    if(deltaTime < 16) {
+        nextRAFCallId = requestAnimationFrame(updateSprings);
+        return;
+    };
     const springsToUpdate = springsToUpdateInNextFrame;
     springsToUpdateInNextFrame = [];
     for (let ii = 0; ii < springsToUpdate.length; ii++) {
-        const isAtRest = springsToUpdate[ii]._advance(deltaTime)
+        const isAtRest = springsToUpdate[ii]._advance()
         if (!isAtRest) addSpringToUpdate(springsToUpdate[ii]);
     }
 }

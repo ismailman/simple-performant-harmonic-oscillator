@@ -16,10 +16,8 @@
             const orange = document.getElementById('orange');
 
             const springConfig = {
-                stiffness: 120,
-                damping: 14,
-                mass: 1,
-                allowOvershooting: true
+                stiffness: 0.1,
+                damping: 0.2
             };
 
             const initialPosition = {
@@ -31,11 +29,11 @@
             const ySpring = new Spring(springConfig, initialPosition);
 
             xSpring.onUpdate(newX => {
-                red.style.left = newX + 'px';
+                red.style.left = (newX + 5) + 'px';
             });
 
             ySpring.onUpdate(newY => {
-                red.style.top = newY + 'px';
+                red.style.top = (newY + 5) + 'px';
             });
 
             document.body.addEventListener('mousemove', e => {

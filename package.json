@@ -1,6 +1,6 @@
 {
   "name": "simple-performant-harmonic-oscillator",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "A small library that models a harmonic oscillator (a spring) that forgoes flexibility in the name of performance. Key calculations came from the Wobble library.",
   "main": "spho.mjs",
   "repository": "https://github.com/ismailman/simple-performant-harmonic-oscillator.git",

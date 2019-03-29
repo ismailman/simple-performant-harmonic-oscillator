@@ -146,7 +146,7 @@ function addSpringToUpdate(_spring) {
 }
 
 function updateSprings() {
-    const deltaTime = (Date.now() - timeOfLastUpdate);
+    const deltaTime = Math.max((Date.now() - timeOfLastUpdate), 33) // cap delta time to equivalent of 30 fps;
     if(deltaTime === 0) {
         nextRAFCallId = requestAnimationFrame(updateSprings);
         return;

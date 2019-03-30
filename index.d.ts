@@ -16,7 +16,10 @@ export type UnsubscribeFunction = () => void;
 export default class Spring {
     constructor(springConfig?: SpringConfig, initialPosition?: InitialPositionConfig);
 
+    setCurrentValue(value: number): void;
     setToValue(toValue: number): void;
+    setBounciness(bounciness: number): void;
+    setSpeed(speed: number): void;
     end(): void;
 
     onUpdate(callback: SpringValueListener): UnsubscribeFunction;

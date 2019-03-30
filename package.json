@@ -1,6 +1,6 @@
 {
   "name": "simple-performant-harmonic-oscillator",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "A small library that models a harmonic oscillator (a spring) that forgoes flexibility in the name of performance.",
   "main": "spho.mjs",
   "repository": "https://github.com/ismailman/simple-performant-harmonic-oscillator.git",

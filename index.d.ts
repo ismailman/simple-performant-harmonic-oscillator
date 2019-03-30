@@ -19,6 +19,7 @@ export default class Spring {
     getCurrentValue(): number;
     setCurrentValue(value: number): void;
     setToValue(toValue: number): void;
+    getToValue(): number;
     setBounciness(bounciness: number): void;
     setSpeed(speed: number): void;
     end(): void;

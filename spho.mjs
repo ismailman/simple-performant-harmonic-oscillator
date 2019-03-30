@@ -31,6 +31,14 @@ export default class Spring {
         addSpringToUpdate(this);
     }
 
+    getCurrentValue() {
+        return this._currentValue;
+    }
+
+    getToValue() {
+        return this._toValue;
+    }
+
     setToValue(value) {
         this._toValue = value;
         addSpringToUpdate(this);

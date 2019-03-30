@@ -38,6 +38,14 @@ Ending value of the animation. Defaults to `1`.
 
 ## Methods
 
+#### `getCurrentValue(): number`
+
+Gets the spring's current value.
+
+#### `getToValue(): number`
+
+Gets the spring's to value that it's trying to reach (or has reached).
+
 #### `setCurrentValue(value: number): void`
 
 Sets the spring's current value.

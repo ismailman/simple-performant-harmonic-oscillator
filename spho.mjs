@@ -36,6 +36,24 @@ export default class Spring {
         addSpringToUpdate(this);
     }
 
+    setBounciness(value) {
+        this._tightness = 1/(value || 1);
+        this._springEquation 
+            = getSpringEquation (
+                this._tightness,
+                this._slowness
+            );
+    }
+
+    setSpeed(value) {
+        this._slowness = 100/(config.speed || 1);
+        this._springEquation 
+            = getSpringEquation (
+                this._tightness,
+                this._slowness
+            );
+    }
+
     end() {
         this._updateListeners.length = 0;
         this._atRestListeners.length = 0;

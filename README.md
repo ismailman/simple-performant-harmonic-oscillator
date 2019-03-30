@@ -38,9 +38,21 @@ Ending value of the animation. Defaults to `1`.
 
 ## Methods
 
-#### `setToValue(toValue: number): void`
+#### `setCurrentValue(value: number): void`
+
+Sets the spring's current value.
+
+#### `setToValue(value: number): void`
 
 Sets the spring's to value.
+
+#### `setBounciness(bounciness: number): void`
+
+Sets the spring's bounciness.
+
+#### `setSpeed(speed: number): void`
+
+Sets the spring's speed.
 
 #### `end(): void`
 

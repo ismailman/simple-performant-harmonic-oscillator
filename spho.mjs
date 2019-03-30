@@ -48,7 +48,7 @@ export default class Spring {
 
         const index = springsToUpdateInNextFrame.indexOf(this);
         if (index > -1) springsToUpdateInNextFrame.splice(index, 1);
-        if (springsToUpdateInNextFrame.length === 0) clearRequestAnimationFrame(nextRAFCallId);
+        if (springsToUpdateInNextFrame.length === 0) cancelAnimationFrame(nextRAFCallId);
     }
 
     getLinkedSpring(offset, springConfig) {

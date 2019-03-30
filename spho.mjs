@@ -99,12 +99,16 @@ export default class Spring {
         this._currentValue = this._toValue - displacement;
         this._velocity = velocity;
 
+        const isAtRest = Math.abs(this._currentValue - this._toValue) <= REST_THRESHOLD &&
+                            Math.abs(this._velocity) <= REST_THRESHOLD;
+
+        if(isAtRest){
+            this._currentValue = this._toValue; //just round to the toValue
+        }
+
         for(let ii=0; ii<this._updateListeners.length; ii++){
             this._updateListeners[ii](this._currentValue);
         }
-
-        const isAtRest = Math.abs(this._currentValue - this._toValue) <= REST_THRESHOLD &&
-                            Math.abs(this._velocity) <= REST_THRESHOLD;
 
         if(isAtRest){
             for(let ii=0; ii<this._atRestListeners.length; ii++){

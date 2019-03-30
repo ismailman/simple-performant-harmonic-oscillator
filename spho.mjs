@@ -108,7 +108,7 @@ export default class Spring {
 
         if(isAtRest){
             for(let ii=0; ii<this._atRestListeners.length; ii++){
-                this._atRestListeners[ii](currentValue);
+                this._atRestListeners[ii](this._currentValue);
             }
         }
         

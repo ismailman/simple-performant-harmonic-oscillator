@@ -46,7 +46,7 @@ export default class Spring {
     }
 
     setSpeed(value) {
-        this._slowness = 100/(config.speed || 1);
+        this._slowness = 100/(value || 1);
         this._springEquation 
             = getSpringEquation (
                 this._tightness,

@@ -1,5 +1,5 @@
 # Simple Performant Harmonic Oscillator (SPHO)
-A highly optimized physics spring behavior calculator. This is inspired by [Wobble](https://github.com/skevy/wobble) for focusing on just one thing: simulating a damped harmonic oscillator - i.e. a spring. SPHO differs from Wobble in some very key ways though and focuses on performance at the expense of error checking configurability. Also the API has been changed to be more intuitive (IMHO).
+A highly optimized physics spring behavior calculator. This is inspired by [Wobble](https://github.com/skevy/wobble) for focusing on just one thing: simulating a damped harmonic oscillator - i.e. a spring. SPHO differs from Wobble in some very key ways though and focuses on performance at the expense of error checking and configurability. Also the API has been changed to be more intuitive (IMHO).
 
 
 One spring demo - https://omar.dev/simple-performant-harmonic-oscillator/demos/basicSpring.html
@@ -23,7 +23,7 @@ Determines how "bouncy" the spring is. Where bouncy is how much the spring will 
 
 #### `speed: number`
 
-Defines how "fast" the spring moves. Low values = low speed, and high values = high speed. The default is `1` which is a medium speed. `2` is considered fast and anything above that starts looking silly. For slower speeds `0.5` to `0.75` is a good range. Once you start going below `0.5` that's probably to slow to be useful in most cases.
+Defines how "fast" the spring moves. Low values = low speed, and high values = high speed. The default is `1` which is a medium speed. `2` is considered fast and anything above that starts looking silly. For slower speeds `0.5` to `0.75` is a good range. Once you start going below `0.5` that's probably too slow to be useful in most cases.
 
 ## InitialPosition
 
@@ -84,4 +84,4 @@ Returns a new "follow" spring that is "linked" to the spring you called the meth
 
 You can have the follow spring come to a different resting state with the "offset". The toValue of the follow spring is anchor spring's current value + offset. By default offset is 0.
 
-By default the follow spring's configuration (mass, stiffness and dampness) will match that of the anchor spring. But you can override this behavior by passing in a different SpringConfig.
+By default the follow spring's configuration (bounciness, speed) will match that of the anchor spring. But you can override this behavior by passing in a different SpringConfig.

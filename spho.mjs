@@ -63,7 +63,7 @@ export default class Spring {
     }
 
     setVelocity(value) {
-        this._velocity = velocity;
+        this._velocity = value;
         addSpringToUpdate(this);
     }
 

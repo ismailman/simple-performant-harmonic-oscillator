@@ -62,6 +62,10 @@ Sets the spring's bounciness.
 
 Sets the spring's speed.
 
+#### `blockSpringFromResting(): () => void`
+
+Block the spring from calling onRest callbacks. Returns a callback that allows onRest callbacks to be called, and if spring is at a rest state then will call those callbacks synchronously.
+
 #### `end(): void`
 
 Stops the spring and removes all listeners.

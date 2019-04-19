@@ -22,6 +22,7 @@ export default class Spring {
     getToValue(): number;
     setBounciness(bounciness: number): void;
     setSpeed(speed: number): void;
+    blockSpringFromResting(): UnsubscribeFunction;
     end(): void;
 
     onUpdate(callback: SpringValueListener): UnsubscribeFunction;

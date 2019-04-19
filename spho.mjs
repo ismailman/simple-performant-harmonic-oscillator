@@ -110,10 +110,11 @@ export default class Spring {
         this._atRestListeners.length = 0;
 
         const onEndListeners = [...this._onEndListeners];
+        this._onEndListeners.length = 0;
+        
         for (let ii = 0; ii < onEndListeners.length; ii++) {
             onEndListeners[ii]();
         }
-        this._onEndListeners.length = 0;
 
         const index = springsToUpdateInNextFrame.indexOf(this);
         if (index > -1) springsToUpdateInNextFrame.splice(index, 1);

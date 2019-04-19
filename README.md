@@ -42,17 +42,29 @@ Ending value of the animation. Defaults to `1`.
 
 Gets the spring's current value.
 
-#### `getToValue(): number`
-
-Gets the spring's to value that it's trying to reach (or has reached).
-
 #### `setCurrentValue(value: number): void`
 
 Sets the spring's current value.
 
+#### `getToValue(): number`
+
+Gets the spring's to value that it's trying to reach (or has reached).
+
 #### `setToValue(value: number): void`
 
 Sets the spring's to value.
+
+#### `getVelocity(): number`
+
+Gets the spring's current velocity.
+
+#### `setVelocity(value: number): void`
+
+Sets the spring's velocity
+
+#### `clone(): Spring`
+
+Returns a new spring that has the same toValue, and starts the spring at the original spring's current value and velocity. No listeners are transferred over.
 
 #### `setBounciness(bounciness: number): void`
 

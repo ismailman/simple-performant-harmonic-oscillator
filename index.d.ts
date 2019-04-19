@@ -20,6 +20,9 @@ export default class Spring {
     setCurrentValue(value: number): void;
     setToValue(toValue: number): void;
     getToValue(): number;
+    getVelocity(): number;
+    setVelocity(value: number): void;
+    clone(): Spring;
     setBounciness(bounciness: number): void;
     setSpeed(speed: number): void;
     blockSpringFromResting(): UnsubscribeFunction;

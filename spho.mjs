@@ -28,6 +28,22 @@ export default class Spring {
         addSpringToUpdate(this);
     }
 
+    clone() {
+        const newSpring = new Spring(
+            {
+                bounciness: 1 / this._tightness,
+                speed: 100 / this._slowness
+            }, 
+            {
+                fromValue: this._currentValue,
+                toValue: this._toValue
+            }
+        );
+
+        newSpring.setVelocity(this._velocity);
+        return newSpring;
+    }
+
     setCurrentValue(value) {
         this._currentValue = value;
         addSpringToUpdate(this);
@@ -44,6 +60,15 @@ export default class Spring {
     setToValue(value) {
         this._toValue = value;
         addSpringToUpdate(this);
+    }
+
+    setVelocity(value) {
+        this._velocity = velocity;
+        addSpringToUpdate(this);
+    }
+
+    getVelocity() {
+        return this._velocity;
     }
 
     setBounciness(value) {

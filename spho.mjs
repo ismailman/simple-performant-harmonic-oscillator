@@ -111,7 +111,7 @@ export default class Spring {
 
         const onEndListeners = [...this._onEndListeners];
         this._onEndListeners.length = 0;
-        
+
         for (let ii = 0; ii < onEndListeners.length; ii++) {
             onEndListeners[ii]();
         }
@@ -176,13 +176,17 @@ export default class Spring {
             this._currentValue = this._toValue; //just round to the toValue
         }
 
-        for (let ii = 0; ii < this._updateListeners.length; ii++) {
-            this._updateListeners[ii](this._currentValue);
+        if(this._updateListeners.length > 0) {
+            const listeners = [...this._updateListeners];
+            for(let ii=0; ii<listeners.length; ii++){
+                listeners[ii](this._currentValue);
+            }
         }
-
-        if (isAtRest && this._canRest) {
-            for (let ii = 0; ii < this._atRestListeners.length; ii++) {
-                this._atRestListeners[ii](this._currentValue);
+        
+        if (isAtRest && this._canRest && this._atRestListeners.length > 0) {
+            const atRestListeners = [...this._atRestListeners];
+            for (let ii = 0; ii < atRestListeners.length; ii++) {
+                atRestListeners[ii](this._currentValue);
             }
         }
 

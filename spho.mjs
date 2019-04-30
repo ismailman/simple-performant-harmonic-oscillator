@@ -23,6 +23,8 @@ export default class Spring {
         this._atRestListeners = [];
         this._onEndListeners = [];
 
+        this._valueMapper = null;
+
         this._canRest = true;
 
         addSpringToUpdate(this);
@@ -105,6 +107,14 @@ export default class Spring {
         }
     }
 
+    setValueMapper(valueMapper) {
+        this._valueMapper = valueMapper;
+    }
+
+    unsetValueMapper() {
+        this._valueMapper = null;
+    }
+
     end() {
         this._updateListeners.length = 0;
         this._atRestListeners.length = 0;
@@ -176,17 +186,19 @@ export default class Spring {
             this._currentValue = this._toValue; //just round to the toValue
         }
 
+        const emitValue = this._valueMapper ? this._valueMapper(this._currentValue) : this._currentValue;
+
         if(this._updateListeners.length > 0) {
             const listeners = [...this._updateListeners];
             for(let ii=0; ii<listeners.length; ii++){
-                listeners[ii](this._currentValue);
+                listeners[ii](emitValue);
             }
         }
         
         if (isAtRest && this._canRest && this._atRestListeners.length > 0) {
             const atRestListeners = [...this._atRestListeners];
             for (let ii = 0; ii < atRestListeners.length; ii++) {
-                atRestListeners[ii](this._currentValue);
+                atRestListeners[ii](emitValue);
             }
         }
 

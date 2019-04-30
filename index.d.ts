@@ -25,6 +25,8 @@ export default class Spring {
     clone(): Spring;
     setBounciness(bounciness: number): void;
     setSpeed(speed: number): void;
+    setValueMapper(fn: (value: number_) => number): void;
+    unsetValueMapper(): void;
     blockSpringFromResting(): UnsubscribeFunction;
     end(): void;
 

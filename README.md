@@ -74,6 +74,14 @@ Sets the spring's bounciness.
 
 Sets the spring's speed.
 
+#### `setValueMapper(fn: (value: number) => number): void`
+
+When set, makes it so that when onUpdate and onAtRest listeners are called the valueMapper will be called first, and the resulting value will get passed to the listener functions. This does not change the underlying toValue and currentValues at all. This is useful if you want to "normalize" different springs. For example if you have two springs, one will go from 0 to 100, and one will go from 0-255 if you want those springs to complete at the same time, then you can set the from and to value to 0 and 1, and then use the valueMapper to interpolate along those original ranges.
+
+#### `unsetValueMapper(): void`
+
+Remove the valueMapper so original behavior is restored.
+
 #### `blockSpringFromResting(): () => void`
 
 Block the spring from calling onRest callbacks. Returns a callback that allows onRest callbacks to be called, and if spring is at a rest state then will call those callbacks synchronously.

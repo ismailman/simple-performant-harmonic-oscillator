@@ -52,7 +52,7 @@ export default class Spring {
     }
 
     getCurrentValue() {
-        return this._valueMapper ? this._valueMapper(this._currentValue) : this._currentValue;
+        return this._currentValue;
     }
 
     getToValue() {
